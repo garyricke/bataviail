@@ -1,0 +1,11 @@
+# Raw generated images (large PNGs/JPGs — served via Cloudinary)
+generated_imgs/
+
+# Migration script (not needed in repo)
+cloudinary_migrate.py
+
+# macOS
+.DS_Store
+
+# Claude internal
+.claude/
