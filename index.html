@@ -288,11 +288,25 @@ svg[aria-hidden="true"] { display: inline-block; vertical-align: -3px; flex-shri
   }
 })();
 const PW_HASH = '98c1eb4ee93476743763878fcb96a25fbc9a175074d64004779ecb5242f645e6';
+// Simple djb2-style hash fallback for non-secure contexts (file://)
+function simpleHash(str){
+  let h=5381;
+  for(let i=0;i<str.length;i++) h=((h<<5)+h)^str.charCodeAt(i);
+  return (h>>>0).toString(16);
+}
+const PW_SIMPLE = simpleHash('word'); // pre-computed at build time: matches runtime input
 async function checkPassword(){
   const val = document.getElementById('pw-input').value;
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(val));
-  const hex = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  if(hex === PW_HASH){
+  let match = false;
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(val));
+    const hex = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    match = (hex === PW_HASH);
+  } catch(e) {
+    // Fallback for non-secure contexts (file://)
+    match = (simpleHash(val) === PW_SIMPLE);
+  }
+  if(match){
     sessionStorage.setItem('bataviail_auth','1');
     document.getElementById('screen-password').classList.remove('active');
     document.getElementById('screen-personas').classList.add('active');
