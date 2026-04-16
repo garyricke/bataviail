@@ -287,9 +287,12 @@ svg[aria-hidden="true"] { display: inline-block; vertical-align: -3px; flex-shri
     document.getElementById('screen-personas').classList.add('active');
   }
 })();
-function checkPassword(){
+const PW_HASH = '98c1eb4ee93476743763878fcb96a25fbc9a175074d64004779ecb5242f645e6';
+async function checkPassword(){
   const val = document.getElementById('pw-input').value;
-  if(val === 'word'){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(val));
+  const hex = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(hex === PW_HASH){
     sessionStorage.setItem('bataviail_auth','1');
     document.getElementById('screen-password').classList.remove('active');
     document.getElementById('screen-personas').classList.add('active');
